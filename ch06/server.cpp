@@ -205,26 +205,7 @@ static int32_t accept_new_conn(vector<Conn*> &fd2conn, int fd) {
 }
 
 int main() {
-    int fd;
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        cout << "Error on socket call\n";
-        exit(1);
-    }
-
-    sockaddr_in addr = {};
-    addr.sin_family = AF_INET;
-    addr.sin_port = ntohs(8080);
-    addr.sin_addr.s_addr = ntohl(0);
-
-    if (bind(fd, (const sockaddr*)&addr, sizeof(addr)) > 0) {
-        cout << "Error on bind call\n";
-        exit(1);
-    }
-
-    if (listen(fd, SOMAXCONN)) {
-        cout << "Error on listen call\n";
-        exit(1);
-    }
+    int fd = initialize_server();
 
     vector<Conn *> fd2conn;
     fd_set_nb(fd);
