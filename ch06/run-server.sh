@@ -1,0 +1,1 @@
+mkdir -p build && g++ -Wall -Wextra -O2 -g server.cpp -o ./build/server && ./build/server
