@@ -14,7 +14,7 @@ int initialize_server() {
 
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
-    addr.sin_port = ntohs(8080);
+    addr.sin_port = ntohs(SERVICE_PORT);
     addr.sin_addr.s_addr = ntohl(0);
 
     if (bind(fd, (const sockaddr*)&addr, sizeof(addr)) > 0) {

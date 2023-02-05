@@ -10,6 +10,7 @@
 #include <fcntl.h> 
 #include <poll.h> 
 
+#define SERVICE_PORT 8080
 #define MAX_MSG 4096
 #define MAX_ARGS 1024
 #define PROTOCOL_REQ_LEN 4

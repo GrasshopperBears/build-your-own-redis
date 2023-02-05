@@ -9,7 +9,7 @@ int initialize_client() {
 
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
-    addr.sin_port = ntohs(8080);
+    addr.sin_port = ntohs(SERVICE_PORT);
     addr.sin_addr.s_addr = ntohl(INADDR_LOOPBACK);
 
     if (connect(fd, (const struct sockaddr*)&addr, sizeof(addr))) {
