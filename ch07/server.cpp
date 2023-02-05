@@ -46,28 +46,34 @@ static void fd_set_nb(int fd) {
 }
 
 static int32_t parse_req(const uint8_t* data, size_t len, vector<string> &out) {
-    if (len < 4) {
+    if (len < PROTO_STR_NUMBER) {
         return -1;
     }
 
-    uint32_t n = 0;
-    memcpy(&n, &data[0], 4);
-    if (n > MAX_ARGS) {
+    /**
+     * Structure of `data`
+     * +------+-----+------+-----+------+-----+-----+------+
+     * | nstr | len | str1 | len | str2 | ... | len | strn |
+     * +------+-----+------+-----+------+-----+-----+------+
+    */
+    uint32_t num_ops = 0;
+    memcpy(&num_ops, &data[0], PROTO_STR_NUMBER);
+    if (num_ops > MAX_ARGS) {
         return -1;
     }
 
-    size_t pos = 4;
-    while (n--) {
-        if (pos + 4 > len) {
+    size_t pos = PROTO_STR_NUMBER;
+    while (num_ops--) {
+        if (pos + PROTO_STR_LEN > len) {
             return -1;
         }
-        uint32_t sz = 0;
-        memcpy(&sz, &data[pos], 4);
-        if (pos + 4 + sz > len) {
+        uint32_t str_len = 0;    // size of each str
+        memcpy(&str_len, &data[pos], PROTO_STR_LEN);
+        if (pos + PROTO_STR_LEN + str_len > len) {
             return -1;
         }
-        out.push_back(string((char*)&data[pos + 4], sz));
-        pos += (4 + sz);
+        out.push_back(string((char*)&data[pos + PROTO_STR_LEN], str_len));
+        pos += (PROTO_STR_LEN + str_len);
     }
     if (pos != len) {
         return -1;
@@ -132,14 +138,20 @@ static bool try_one_request(Conn* conn) {
         return false;
     }
 
-    write_len += 4;
+    /**
+     * Response structure
+     * +-----+---------+
+     * | res | data... |
+     * +-----+---------+
+    */
+    write_len += PROTO_RES_CODE;
     memcpy(&conn->write_buf[0], &write_len, PROTO_PAYLOAD_LEN);
     memcpy(&conn->write_buf[PROTO_PAYLOAD_LEN], &rescode, PROTO_RES_CODE);
-    conn->write_buf_size = 4 + write_len;
+    conn->write_buf_size = PROTO_PAYLOAD_LEN + write_len;
 
-    size_t remaining = conn->read_buf_size - (4 + len);
+    size_t remaining = conn->read_buf_size - (PROTO_PAYLOAD_LEN + len);
     if (remaining) {
-        memmove(conn->read_buf, &conn->read_buf[4 + len], remaining);
+        memmove(conn->read_buf, &conn->read_buf[PROTO_PAYLOAD_LEN + len], remaining);
     }
     conn->read_buf_size = remaining;
 

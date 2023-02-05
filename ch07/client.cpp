@@ -1,26 +1,26 @@
 #include "../common/client.h"
 
 static int32_t send_req(int fd, const vector<string> &cmd) {
-    uint32_t len = 4;
+    uint32_t len = PROTO_PAYLOAD_LEN;
     for (const string &s: cmd) {
-        len += 4 + s.size();
+        len += (PROTO_STR_LEN + s.size());
     }
 
     if (len > MAX_ARGS) { return -1; }
 
-    char write_buf[4 + MAX_ARGS];
-    uint32_t n = cmd.size();
+    char write_buf[PROTO_PAYLOAD_LEN + MAX_ARGS];
+    uint32_t num_ops = cmd.size();
 
-    memcpy(&write_buf[0], &len, 4);
-    memcpy(&write_buf[4], &n, 4);
+    memcpy(&write_buf[0], &len, PROTO_PAYLOAD_LEN);
+    memcpy(&write_buf[PROTO_PAYLOAD_LEN], &num_ops, PROTO_STR_NUMBER);
 
-    size_t curr = 8;
+    size_t curr = PROTO_PAYLOAD_LEN + PROTO_STR_NUMBER;
 
     for (const string &s: cmd) {
         uint32_t p = (uint32_t)s.size();
-        memcpy(&write_buf[curr], &p, 4);
-        memcpy(&write_buf[curr + 4], s.data(), s.size());
-        curr += (4 + s.size());
+        memcpy(&write_buf[curr], &p, PROTO_STR_LEN);
+        memcpy(&write_buf[curr + PROTO_STR_LEN], s.data(), s.size());
+        curr += (PROTO_STR_LEN + s.size());
     }
     return write_all(fd, write_buf, 4 + len);
 }
@@ -53,7 +53,7 @@ static int32_t read_res(int fd) {
         return println_and_return("Error at read call", err);
     }
 
-    memcpy(&rescode, &read_buf[4], 4);
+    memcpy(&rescode, &read_buf[PROTO_PAYLOAD_LEN], PROTO_RES_CODE);
     printf("server response: [%s] %.*s\n", rescode2str(rescode), len - 4, &read_buf[8]);
     return 0;
 }
