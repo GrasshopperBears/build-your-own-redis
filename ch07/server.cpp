@@ -1,25 +1,5 @@
 #include "../common/server.h"
-
-enum {
-    STATE_REQ = 0,  // reading request
-    STATE_RES = 1,  // sending response
-    STATE_END = 2,
-};
-
-struct Conn {
-    int fd = -1;
-    uint32_t state = 0;
-
-    size_t read_buf_size = 0;
-    uint8_t read_buf[PROTOCOL_REQ_LEN + MAX_MSG];
-    
-    size_t write_buf_size = 0;
-    size_t write_buf_sent = 0;
-    uint8_t write_buf[PROTOCOL_REQ_LEN + MAX_MSG];
-};
-
-static void state_req(Conn* conn);
-static void state_res(Conn* conn);
+#include "../ch06/ch06.h"
 
 // -------------------- operation area --------------------
 static map<string, string> g_map;

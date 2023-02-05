@@ -1,26 +1,5 @@
 #include "../common/server.h"
 
-enum {
-    STATE_REQ = 0,  // reading request
-    STATE_RES = 1,  // sending response
-    STATE_END = 2,
-};
-
-struct Conn {
-    int fd = -1;
-    uint32_t state = 0;
-
-    size_t read_buf_size = 0;
-    uint8_t read_buf[PROTOCOL_REQ_LEN + MAX_MSG];
-    
-    size_t write_buf_size = 0;
-    size_t write_buf_sent = 0;
-    uint8_t write_buf[PROTOCOL_REQ_LEN + MAX_MSG];
-};
-
-static void state_req(Conn* conn);
-static void state_res(Conn* conn);
-
 // Set fd to non-blocking mode
 static void fd_set_nb(int fd) {
     errno = 0;
@@ -91,19 +70,19 @@ static bool try_fill_buffer(Conn* conn) {
 
     if (rv < 0) {
         if (errno == EAGAIN) {
-        return false;
+            return false;
         }
 
-        cout << "Error on read call\n";
+        println("Error on read call");
         conn->state = STATE_END;
         return false;
     }
 
     if (rv == 0) {
         if (conn->read_buf_size > 0) {
-        cout << "Unexpected EOF\n";
+            println("Unexpected EOF");
         } else {
-        cout << "EOF\n";
+            println("EOF");
         }
 
         conn->state = STATE_END;
@@ -133,7 +112,7 @@ static bool try_flush_buffer(Conn* conn) {
         if (errno == EAGAIN) {
             return false;
         }
-        cout << "Error on write call\n";
+        println("Error on write call");
         conn->state = STATE_END;
         return false;
     }
@@ -204,7 +183,7 @@ static int32_t accept_new_conn(vector<Conn*> &fd2conn, int fd) {
     return 0;
 }
 
-int main() {
+void run_server() {
     int fd = initialize_server();
 
     vector<Conn *> fd2conn;
@@ -252,4 +231,8 @@ int main() {
             accept_new_conn(fd2conn, fd);
         }
     }
+}
+
+int main() {
+    run_server();
 }
