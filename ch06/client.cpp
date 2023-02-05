@@ -1,4 +1,4 @@
-#include "../buildRedisCommon.h"
+#include "../common/client.h"
 
 static int32_t write_all(int fd, const char* buf, size_t n) {
     while (n > 0) {

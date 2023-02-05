@@ -1,4 +1,4 @@
-#include "../buildRedisCommon.h"
+#include "../common/client.h"
 
 int main(int argc, char* argv[])
 {

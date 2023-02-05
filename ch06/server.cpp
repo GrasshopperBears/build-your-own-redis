@@ -1,4 +1,4 @@
-#include "../buildRedisCommon.h"
+#include "../common/server.h"
 
 enum {
     STATE_REQ = 0,  // reading request

@@ -1,4 +1,4 @@
-#include "../buildRedisCommon.h"
+#include "../common/server.h"
 
 static void server_application(int connfd)
 {
