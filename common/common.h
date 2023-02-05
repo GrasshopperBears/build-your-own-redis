@@ -23,3 +23,12 @@ enum {
     RES_ERR = 1,
     RES_NX = 2,
 };
+
+static void println(string msg) {
+    cout << msg << '\n';
+}
+
+static uint32_t println_and_return(string msg, uint32_t ret_val) {
+    println(msg);
+    return ret_val;
+}

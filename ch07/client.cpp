@@ -32,9 +32,9 @@ static int32_t read_res(int fd) {
     int32_t err = read_full(fd, read_buf, PROTOCOL_REQ_LEN);
     if (err) {
         if (errno == 0) {
-            cout << "EOF\n";
+            println("EOF");
         } else {
-            cout << "read() error\n";
+            println("Error on read call");
         }
         return err;
     }
@@ -43,17 +43,14 @@ static int32_t read_res(int fd) {
     uint32_t rescode = 0;
     memcpy(&len, read_buf, PROTOCOL_REQ_LEN);
     if (len > MAX_MSG) {
-        cout << "too long\n";
-        return -1;
+        return println_and_return("too long", -1);
     } else if (len < 4) {
-        cout << "bad response\n";
-        return -1;
+        return println_and_return("bad response", -1);
     }
 
     err = read_full(fd, &read_buf[PROTOCOL_REQ_LEN], len);
     if (err) {
-        cout << "read() error\n";
-        return err;
+        return println_and_return("Error at read call", err);
     }
 
     memcpy(&rescode, &read_buf[4], 4);
@@ -72,18 +69,17 @@ int main(int argc, char** argv) {
 
     int32_t err = send_req(fd, cmd);
     if (err) {
-        cout << "Error on request\n";
+        println("Error on request");
         goto L_DONE;
     }
 
 
     err = read_res(fd);
     if (err) {
-        cout << "Error on reading response\n";
+        println("Error on reading response");
         goto L_DONE;
     }
     
-
 L_DONE:
     close(fd);
     return 0;

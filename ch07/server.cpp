@@ -55,14 +55,14 @@ static void fd_set_nb(int fd) {
     errno = 0;
     int flags = fcntl(fd, F_GETFL, 0);
     if (errno) {
-        cout << "Error on fcntl call\n";
+        println("Error on fcntl call");
         return;
     }
 
     errno = 0;
     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
     if (errno) {
-        cout << "Error on fcntl call\n";
+        println("Error on fcntl call");
     }
 }
 
@@ -101,8 +101,7 @@ static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* respons
     vector<string> cmd;
 
     if (parse_req(req, reqlen, cmd) != 0) {
-        cout << "Bad request\n";
-        return -1;
+        return println_and_return("Bad request", -1);
     }
 
     if (cmd.size() == 2 && cmd[0].compare("get") == 0) {
@@ -128,7 +127,7 @@ static bool try_one_request(Conn* conn) {
     uint32_t len = 0;
     memcpy(&len, &conn->read_buf[0], PROTOCOL_REQ_LEN);
     if (len > MAX_MSG) {
-        cout << "Message is too long\n";
+        println("Message is too long");
         conn->state = STATE_END;
         return false;
     }
@@ -174,19 +173,19 @@ static bool try_fill_buffer(Conn* conn) {
 
     if (rv < 0) {
         if (errno == EAGAIN) {
-        return false;
+            return false;
         }
 
-        cout << "Error on read call\n";
+        println("Error on read call");
         conn->state = STATE_END;
         return false;
     }
 
     if (rv == 0) {
         if (conn->read_buf_size > 0) {
-        cout << "Unexpected EOF\n";
+            println("Unexpected EOF");
         } else {
-        cout << "EOF\n";
+            println("EOF");
         }
 
         conn->state = STATE_END;
@@ -216,7 +215,7 @@ static bool try_flush_buffer(Conn* conn) {
         if (errno == EAGAIN) {
             return false;
         }
-        cout << "Error on write call\n";
+        println("Error on write call");
         conn->state = STATE_END;
         return false;
     }
@@ -268,8 +267,7 @@ static int32_t accept_new_conn(vector<Conn*> &fd2conn, int fd) {
     int connfd;
 
     if ((connfd = accept(fd, (struct sockaddr*)&client_addr, &socklen)) < 0) {
-        cout << "Error on accept call\n";
-        return -1;
+        return println_and_return("Error on accept call", -1);
     }
     fd_set_nb(connfd);
     struct Conn* conn = (struct Conn*) malloc(sizeof(struct Conn));
@@ -314,7 +312,7 @@ int main() {
 
         // After the return of poll, we are notified by which fd are ready for reading/writing and act accordingly
         if (poll(poll_args.data(), (nfds_t)poll_args.size(), 1000) < 0) {
-            cout << "Error on poll call\n";
+            println("Error on poll call");
             exit(1);
         }
 
