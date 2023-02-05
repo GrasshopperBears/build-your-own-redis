@@ -75,6 +75,14 @@ static int32_t parse_req(const uint8_t* data, size_t len, vector<string> &out) {
     return 0;
 }
 
+static void print_cmd(vector<string> cmd) {
+    cout << "Executing: ";
+    for (string s: cmd) {
+        cout << s << ' ';
+    }
+    cout << '\n';
+}
+
 // handle request
 static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* rescode, uint8_t* res, uint32_t* reslen) {
     vector<string> cmd;
@@ -82,6 +90,8 @@ static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* rescode
     if (parse_req(req, reqlen, cmd) != 0) {
         return println_and_return("Bad request", -1);
     }
+
+    print_cmd(cmd);
 
     if (cmd.size() == 2 && cmd[0].compare("get") == 0) {
         *rescode = do_get(cmd, res, reslen);
@@ -112,8 +122,6 @@ static bool try_one_request(Conn* conn) {
     }
 
     if (PROTOCOL_REQ_LEN + len > conn->read_buf_size) { return false; }
-
-    printf("Data from client: %.*s\n", len, &conn->read_buf[PROTOCOL_REQ_LEN]);
 
     uint32_t rescode = 0;
     uint32_t write_len = 0;
