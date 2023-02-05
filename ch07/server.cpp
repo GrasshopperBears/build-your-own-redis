@@ -97,7 +97,7 @@ static int32_t parse_req(const uint8_t* data, size_t len, vector<string> &out) {
 }
 
 // handle request
-static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* response_code, uint8_t* res, uint32_t* reslen) {
+static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* rescode, uint8_t* res, uint32_t* reslen) {
     vector<string> cmd;
 
     if (parse_req(req, reqlen, cmd) != 0) {
@@ -105,13 +105,13 @@ static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* respons
     }
 
     if (cmd.size() == 2 && cmd[0].compare("get") == 0) {
-        *response_code = do_get(cmd, res, reslen);
+        *rescode = do_get(cmd, res, reslen);
     } else if (cmd.size() == 3 && cmd[0].compare("set") == 0) {
-        *response_code = do_set(cmd, res, reslen);
+        *rescode = do_set(cmd, res, reslen);
     } else if (cmd.size() == 2 && cmd[0].compare("del") == 0) {
-        *response_code = do_del(cmd, res, reslen);
+        *rescode = do_del(cmd, res, reslen);
     } else {
-        *response_code = RES_ERR;
+        *rescode = RES_ERR;
         const char* msg = "Unkown command";
         strcpy((char*) res, msg);
         *reslen = strlen(msg);
@@ -136,9 +136,9 @@ static bool try_one_request(Conn* conn) {
 
     printf("Data from client: %.*s\n", len, &conn->read_buf[PROTOCOL_REQ_LEN]);
 
-    uint32_t response_code = 0;
+    uint32_t rescode = 0;
     uint32_t write_len = 0;
-    uint32_t err = do_request(&conn->read_buf[PROTOCOL_REQ_LEN], len, &response_code, &conn->write_buf[PROTOCOL_REQ_LEN + PROTOCOL_RES_CODE_LEN], &write_len);
+    uint32_t err = do_request(&conn->read_buf[PROTOCOL_REQ_LEN], len, &rescode, &conn->write_buf[PROTOCOL_REQ_LEN + PROTOCOL_RES_CODE_LEN], &write_len);
 
     if (err) {
         conn->state = STATE_END;
@@ -147,7 +147,7 @@ static bool try_one_request(Conn* conn) {
 
     write_len += 4;
     memcpy(&conn->write_buf[0], &write_len, PROTOCOL_REQ_LEN);
-    memcpy(&conn->write_buf[PROTOCOL_REQ_LEN], &response_code, PROTOCOL_RES_CODE_LEN);
+    memcpy(&conn->write_buf[PROTOCOL_REQ_LEN], &rescode, PROTOCOL_RES_CODE_LEN);
     conn->write_buf_size = 4 + write_len;
 
     size_t remaining = conn->read_buf_size - (4 + len);

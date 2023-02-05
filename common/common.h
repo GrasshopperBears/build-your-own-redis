@@ -24,6 +24,16 @@ enum {
     RES_NX = 2,
 };
 
+inline const char* rescode2str(uint32_t rescode) {
+    switch (rescode)
+    {
+        case 0: return "RES_OK";
+        case 1: return "RES_ERR";
+        case 2: return "RES_NX";
+        default: return "Illegal res_status";
+    }
+}
+
 static void println(string msg) {
     cout << msg << '\n';
 }
