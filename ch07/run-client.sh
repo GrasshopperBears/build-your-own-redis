@@ -1,0 +1,1 @@
+mkdir -p build && g++ -Wall -Wextra -O2 -g client.cpp -o ./build/client && ./build/client
