@@ -54,7 +54,7 @@ static int32_t read_res(int fd) {
     }
 
     memcpy(&rescode, &read_buf[4], 4);
-    printf("server response: [%u] %.*s\n", rescode2str(rescode), len - 4, &read_buf[8]);
+    printf("server response: [%s] %.*s\n", rescode2str(rescode), len - 4, &read_buf[8]);
     return 0;
 }
 
