@@ -11,11 +11,11 @@ struct Conn {
     uint32_t state = 0;
 
     size_t read_buf_size = 0;
-    uint8_t read_buf[PROTOCOL_REQ_LEN + MAX_MSG];
+    uint8_t read_buf[PROTO_PAYLOAD_LEN + MAX_MSG];
     
     size_t write_buf_size = 0;
     size_t write_buf_sent = 0;
-    uint8_t write_buf[PROTOCOL_REQ_LEN + MAX_MSG];
+    uint8_t write_buf[PROTO_PAYLOAD_LEN + MAX_MSG];
 };
 
 int initialize_server() {

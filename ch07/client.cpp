@@ -26,10 +26,10 @@ static int32_t send_req(int fd, const vector<string> &cmd) {
 }
 
 static int32_t read_res(int fd) {
-    char read_buf[PROTOCOL_REQ_LEN + MAX_MSG + 1];
+    char read_buf[PROTO_PAYLOAD_LEN + MAX_MSG + 1];
     errno = 0;
 
-    int32_t err = read_full(fd, read_buf, PROTOCOL_REQ_LEN);
+    int32_t err = read_full(fd, read_buf, PROTO_PAYLOAD_LEN);
     if (err) {
         if (errno == 0) {
             println("EOF");
@@ -41,14 +41,14 @@ static int32_t read_res(int fd) {
 
     uint32_t len = 0;
     uint32_t rescode = 0;
-    memcpy(&len, read_buf, PROTOCOL_REQ_LEN);
+    memcpy(&len, read_buf, PROTO_PAYLOAD_LEN);
     if (len > MAX_MSG) {
         return println_and_return("too long", -1);
     } else if (len < 4) {
         return println_and_return("bad response", -1);
     }
 
-    err = read_full(fd, &read_buf[PROTOCOL_REQ_LEN], len);
+    err = read_full(fd, &read_buf[PROTO_PAYLOAD_LEN], len);
     if (err) {
         return println_and_return("Error at read call", err);
     }

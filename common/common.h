@@ -13,8 +13,10 @@
 #define SERVICE_PORT 8080
 #define MAX_MSG 4096
 #define MAX_ARGS 1024
-#define PROTOCOL_REQ_LEN 4
-#define PROTOCOL_RES_CODE_LEN 4
+#define PROTO_PAYLOAD_LEN 4
+#define PROTO_RES_CODE 4
+#define PROTO_STR_NUMBER 4
+#define PROTO_STR_LEN 4
 
 using namespace std;
 

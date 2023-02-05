@@ -6,21 +6,21 @@ static int32_t send_req(int fd, const char* text) {
         return -1;
     }
 
-    char write_buf[PROTOCOL_REQ_LEN + MAX_MSG];
-    memcpy(write_buf, &len, PROTOCOL_REQ_LEN);
-    memcpy(&write_buf[PROTOCOL_REQ_LEN], text, len);
+    char write_buf[PROTO_PAYLOAD_LEN + MAX_MSG];
+    memcpy(write_buf, &len, PROTO_PAYLOAD_LEN);
+    memcpy(&write_buf[PROTO_PAYLOAD_LEN], text, len);
 
-    if (int32_t err = write_all(fd, write_buf, PROTOCOL_REQ_LEN + len)) {
+    if (int32_t err = write_all(fd, write_buf, PROTO_PAYLOAD_LEN + len)) {
         return err;
     }
     return 0;
 }
 
 static int32_t read_res(int fd) {
-    char read_buf[PROTOCOL_REQ_LEN + MAX_MSG + 1];
+    char read_buf[PROTO_PAYLOAD_LEN + MAX_MSG + 1];
     errno = 0;
 
-    int32_t err = read_full(fd, read_buf, PROTOCOL_REQ_LEN);
+    int32_t err = read_full(fd, read_buf, PROTO_PAYLOAD_LEN);
     if (err) {
         if (errno == 0) {
             cout << "EOF\n";
@@ -31,20 +31,20 @@ static int32_t read_res(int fd) {
     }
 
     uint32_t len = 0;
-    memcpy(&len, read_buf, PROTOCOL_REQ_LEN);
+    memcpy(&len, read_buf, PROTO_PAYLOAD_LEN);
     if (len > MAX_MSG) {
         cout << "too long\n";
         return -1;
     }
 
-    err = read_full(fd, &read_buf[PROTOCOL_REQ_LEN], len);
+    err = read_full(fd, &read_buf[PROTO_PAYLOAD_LEN], len);
     if (err) {
         cout << "read() error\n";
         return err;
     }
 
-    read_buf[PROTOCOL_REQ_LEN + len] = '\0';
-    printf("Server response: %s\n", &read_buf[PROTOCOL_REQ_LEN]);
+    read_buf[PROTO_PAYLOAD_LEN + len] = '\0';
+    printf("Server response: %s\n", &read_buf[PROTO_PAYLOAD_LEN]);
     return 0;
 }
 

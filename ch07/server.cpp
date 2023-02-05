@@ -111,21 +111,21 @@ static int32_t do_request(const uint8_t* req, uint32_t reqlen, uint32_t* rescode
 
 // handles the incoming data
 static bool try_one_request(Conn* conn) {
-    if (conn->read_buf_size < PROTOCOL_REQ_LEN) { return false; }
+    if (conn->read_buf_size < PROTO_PAYLOAD_LEN) { return false; }
 
     uint32_t len = 0;
-    memcpy(&len, &conn->read_buf[0], PROTOCOL_REQ_LEN);
+    memcpy(&len, &conn->read_buf[0], PROTO_PAYLOAD_LEN);
     if (len > MAX_MSG) {
         println("Message is too long");
         conn->state = STATE_END;
         return false;
     }
 
-    if (PROTOCOL_REQ_LEN + len > conn->read_buf_size) { return false; }
+    if (PROTO_PAYLOAD_LEN + len > conn->read_buf_size) { return false; }
 
     uint32_t rescode = 0;
     uint32_t write_len = 0;
-    uint32_t err = do_request(&conn->read_buf[PROTOCOL_REQ_LEN], len, &rescode, &conn->write_buf[PROTOCOL_REQ_LEN + PROTOCOL_RES_CODE_LEN], &write_len);
+    uint32_t err = do_request(&conn->read_buf[PROTO_PAYLOAD_LEN], len, &rescode, &conn->write_buf[PROTO_PAYLOAD_LEN + PROTO_RES_CODE], &write_len);
 
     if (err) {
         conn->state = STATE_END;
@@ -133,8 +133,8 @@ static bool try_one_request(Conn* conn) {
     }
 
     write_len += 4;
-    memcpy(&conn->write_buf[0], &write_len, PROTOCOL_REQ_LEN);
-    memcpy(&conn->write_buf[PROTOCOL_REQ_LEN], &rescode, PROTOCOL_RES_CODE_LEN);
+    memcpy(&conn->write_buf[0], &write_len, PROTO_PAYLOAD_LEN);
+    memcpy(&conn->write_buf[PROTO_PAYLOAD_LEN], &rescode, PROTO_RES_CODE);
     conn->write_buf_size = 4 + write_len;
 
     size_t remaining = conn->read_buf_size - (4 + len);

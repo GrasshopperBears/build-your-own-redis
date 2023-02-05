@@ -18,38 +18,38 @@ static void fd_set_nb(int fd) {
 
 // handles the incoming data
 static bool try_one_request(Conn* conn) {
-    if (conn->read_buf_size < PROTOCOL_REQ_LEN) {
+    if (conn->read_buf_size < PROTO_PAYLOAD_LEN) {
         // Not enough space in the buffer. Will retry in the next iteration
         return false;
     }
 
     uint32_t len = 0;
-    memcpy(&len, &conn->read_buf[0], PROTOCOL_REQ_LEN);
+    memcpy(&len, &conn->read_buf[0], PROTO_PAYLOAD_LEN);
     if (len > MAX_MSG) {
         cout << "Message is too long\n";
         conn->state = STATE_END;
         return false;
     }
 
-    if (PROTOCOL_REQ_LEN + len > conn->read_buf_size) {
+    if (PROTO_PAYLOAD_LEN + len > conn->read_buf_size) {
         // same as the part at the beginning of this function
         return false;
     }
 
-    printf("Data from client: %.*s\n", len, &conn->read_buf[PROTOCOL_REQ_LEN]);
+    printf("Data from client: %.*s\n", len, &conn->read_buf[PROTO_PAYLOAD_LEN]);
 
     // echo response
-    memcpy(&conn->write_buf[0], &len, PROTOCOL_REQ_LEN);
-    memcpy(&conn->write_buf[PROTOCOL_REQ_LEN], &conn->read_buf[PROTOCOL_REQ_LEN], len);
-    conn->write_buf_size = PROTOCOL_REQ_LEN + len;
+    memcpy(&conn->write_buf[0], &len, PROTO_PAYLOAD_LEN);
+    memcpy(&conn->write_buf[PROTO_PAYLOAD_LEN], &conn->read_buf[PROTO_PAYLOAD_LEN], len);
+    conn->write_buf_size = PROTO_PAYLOAD_LEN + len;
 
     /**
      * Removing request from buffer.
      * However, it should be improved because frequent memmove drops efficiency
      */
-    size_t remaining = conn->read_buf_size - (PROTOCOL_REQ_LEN + len);
+    size_t remaining = conn->read_buf_size - (PROTO_PAYLOAD_LEN + len);
     if (remaining) {
-        memmove(conn->read_buf, &conn->read_buf[PROTOCOL_REQ_LEN + len], remaining);
+        memmove(conn->read_buf, &conn->read_buf[PROTO_PAYLOAD_LEN + len], remaining);
     }
     conn->read_buf_size = remaining;
 
