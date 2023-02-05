@@ -1,5 +1,4 @@
 #include "../common/server.h"
-#include "../ch06/ch06.h"
 
 // -------------------- operation area --------------------
 static map<string, string> g_map;
