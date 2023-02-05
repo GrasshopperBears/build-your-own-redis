@@ -1,18 +1,5 @@
 #include "../common/client.h"
 
-static int32_t write_all(int fd, const char* buf, size_t n) {
-    while (n > 0) {
-        ssize_t rv = write(fd, buf, n);
-        if (rv <= 0) {
-            return -1;
-        }
-        assert((size_t)rv <= n);
-        n -= (size_t)rv;
-        buf += rv;
-    }
-    return 0;
-}
-
 static int32_t send_req(int fd, const char* text) {
     uint32_t len = (uint32_t)strlen(text);
     if (len > MAX_MSG) {
@@ -25,19 +12,6 @@ static int32_t send_req(int fd, const char* text) {
 
     if (int32_t err = write_all(fd, write_buf, PROTOCOL_REQ_LEN + len)) {
         return err;
-    }
-    return 0;
-}
-
-static int32_t read_full(int fd, char* buf, size_t n) {
-    while (n > 0) {
-        ssize_t rv = read(fd, buf, n);
-        if (rv <= 0) {
-            return -1;
-        }
-        assert((size_t)rv <= n);
-        n -= (size_t)rv;
-        buf += rv;
     }
     return 0;
 }
