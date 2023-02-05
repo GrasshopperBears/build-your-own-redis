@@ -34,11 +34,11 @@ inline const char* rescode2str(uint32_t rescode) {
     }
 }
 
-static void println(string msg) {
+inline void println(string msg) {
     cout << msg << '\n';
 }
 
-static uint32_t println_and_return(string msg, uint32_t ret_val) {
+inline uint32_t println_and_return(string msg, uint32_t ret_val) {
     println(msg);
     return ret_val;
 }
